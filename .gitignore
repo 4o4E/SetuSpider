@@ -27,3 +27,7 @@ result/
 
 # temp
 image/
+
+# project file
+.gradle/
+build/
