@@ -29,4 +29,8 @@ logs/
 
 # project file
 .gradle/
+.idea/
 build/
+gradle/
+gradlew
+gradlew.bat
