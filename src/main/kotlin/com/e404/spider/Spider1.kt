@@ -9,7 +9,7 @@ import kotlin.system.exitProcess
 
 
 @Suppress("UNCHECKED_CAST")
-object Spider1 {
+object SpiderNiJi {
     private const val url = "https://www.niji-wired.info/page/{p}/"
 
     // list<pair<title, url>>
