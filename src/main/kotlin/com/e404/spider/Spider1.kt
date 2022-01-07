@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
 import java.io.File
-import java.io.FileInputStream
 import kotlin.system.exitProcess
 
 
@@ -29,7 +28,7 @@ object Spider1 {
 
     // map<title, list<url>>
     @JvmStatic
-    fun spiderPosts(posts: List<Pair<String, String>>): List<Pair<String, List<String>>> {
+    private fun spiderPosts(posts: List<Pair<String, String>>): List<Pair<String, List<String>>> {
         return handlerAsync(posts, fun(a: Any): Pair<String, List<String>> {
             val postUrl = a as Pair<String, String>
             return postUrl.first.replace(Regex("[<>?*\"|\\\\:/\\s]"), "") to
@@ -42,7 +41,8 @@ object Spider1 {
         })
     }
 
-    fun loadFromSpider(): List<Pair<String, List<String>>> {
+    @JvmStatic
+    private fun loadFromSpider(): List<Pair<String, List<String>>> {
         val p = getPosts()
         println("=====\n获取索引完成\n=====")
         val posts = spiderPosts(p)
@@ -50,17 +50,19 @@ object Spider1 {
         return posts
     }
 
-    fun loadFromJson(): List<Pair<String, List<String>>> {
-        return FileInputStream("image/image.json").use {
-            Gson().fromJson<List<Pair<String, List<String>>>>(it.bufferedReader(),
-                object : TypeToken<List<Pair<String, List<String>>>>() {}.type)
-        }
+    @JvmStatic
+    private fun loadFromJson(): List<Pair<String, List<String>>> {
+        val file = File("image/image.json")
+        return if (file.exists()) Gson().fromJson(file.readText(),
+            object : TypeToken<List<Pair<String, List<String>>>>() {}.type)
+        else loadFromSpider()
     }
 
-    fun downloadImages(posts: List<Pair<String, List<String>>>) {
+    @JvmStatic
+    private fun downloadImages(posts: List<Pair<String, List<String>>>) {
         File("image").mkdirs()
         File("image/image.json").writeText(GsonBuilder().setPrettyPrinting().create().toJson(posts))
-        handlerAsync<String>(posts, fun(a: Any): String {
+        handlerAsync(posts, fun(a: Any): String {
             val (name, list) = a as Pair<String, List<String>>
             val dir = File("image/$name")
             dir.mkdirs()
