@@ -47,13 +47,13 @@ fun String.downloadAsImage(
 fun <T> handlerAsync(
     list: List<Any>,
     handler: (Any) -> T,
-    maxThreadCount: Int = 5,
-    timeout: Long = 5L,
+    threadCount: Int = 10,
+    timeout: Long = 30L,
     timeUnit: TimeUnit = TimeUnit.MINUTES,
 ): CopyOnWriteArrayList<T> {
     val result = CopyOnWriteArrayList<T>()
     val count = list.size
-    val ctp = Executors.newFixedThreadPool(if (count < maxThreadCount) count else maxThreadCount)
+    val ctp = Executors.newFixedThreadPool(if (count < threadCount) count else threadCount)
     for (i in 0 until count) ctp.execute { result.add(handler(list[i])) }
     ctp.shutdown()
     ctp.awaitTermination(timeout, timeUnit)
