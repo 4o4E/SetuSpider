@@ -1,19 +1,24 @@
-package com.e404.spider
+package top.e404.spider.spider
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
-import org.slf4j.LoggerFactory
+import top.e404.spider.Settings
+import top.e404.spider.downloadAsImage
+import top.e404.spider.handlerAsync
+import top.e404.spider.log
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.exitProcess
 
 
+/**
+ * https://www.niji-wired.info/
+ */
 @Suppress("UNCHECKED_CAST")
-object SpiderNiJi {
-    @JvmStatic
-    private val log = LoggerFactory.getLogger("")
+object NiJi {
+    private val log = log()
     private const val url = "https://www.niji-wired.info/page/{p}/"
 
     /**
@@ -21,18 +26,21 @@ object SpiderNiJi {
      *
      * @return list<pair<title, url>>
      */
-    @JvmStatic
     fun getPosts(): List<Pair<String, String>> {
         val postInfoList = handlerAsync((1..94).map { url.replace("{p}", it.toString()) },
             fun(a: Any): List<Pair<String, String>> {
                 val url = a as String
                 val l = try {
-                    Jsoup.connect(url).get()
+                    Jsoup.connect(url)
+                        .proxy(Settings.proxy)
+                        .get()
                         .select(".listCT li > a")
                         .map { it.attr("title") to it.attr("href") }
                 } catch (ignore: Exception) {
                     try {
-                        Jsoup.connect(url).get()
+                        Jsoup.connect(url)
+                            .proxy(Settings.proxy)
+                            .get()
                             .select(".listCT li > a")
                             .map { it.attr("title") to it.attr("href") }
                     } catch (e: Exception) {
@@ -54,11 +62,12 @@ object SpiderNiJi {
      * @param postInfoList 帖子信息列表
      * @return map<title, list<url>>
      */
-    @JvmStatic
     private fun spiderPosts(postInfoList: List<Pair<String, String>>): List<Pair<String, List<String>>> {
         val posts = handlerAsync(postInfoList, fun(a: Any): Pair<String, List<String>> {
             val postInfo = a as Pair<String, String>
-            val urls = Jsoup.connect(postInfo.second).get()
+            val urls = Jsoup.connect(postInfo.second)
+                .proxy(Settings.proxy)
+                .get()
                 .select("#gallery-2 .gallery-item img")
                 .map { it.attr("src").replace(Regex("-\\d+x\\d+"), "") }
             log.debug("帖子解析url完成, title: ${postInfo.first}, url: ${postInfo.second}, size: ${urls.size}")
@@ -71,7 +80,6 @@ object SpiderNiJi {
         return posts
     }
 
-    @JvmStatic
     private fun getPostInfoList(): List<Pair<String, List<String>>> {
         val file = File("image/posts.json")
         return if (file.exists()) Gson().fromJson(file.readText(),
@@ -79,7 +87,6 @@ object SpiderNiJi {
         else spiderPosts(getPosts())
     }
 
-    @JvmStatic
     private fun downloadImages(posts: List<Pair<String, List<String>>>) {
         val size = posts.sumOf { it.second.size }
         val complete = AtomicInteger(0)
