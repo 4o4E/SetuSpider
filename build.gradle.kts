@@ -25,7 +25,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.2")
     // ktor
     implementation(ktor("client-core"))
-    implementation(ktor("client-cio"))
+    implementation(ktor("client-okhttp"))
+    implementation(ktor("client-logging-jvm"))
+
+    // serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
     // slf4j
     implementation("org.slf4j:slf4j-api:1.7.32")
