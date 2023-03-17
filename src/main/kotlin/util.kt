@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 fun Any.log() = LoggerFactory.getLogger(this::class.java)!!
 
-val clieht = HttpClient {
+val client = HttpClient {
     install(UserAgent) {
         agent = Settings.userAgent
     }
@@ -24,7 +24,7 @@ val clieht = HttpClient {
     }
 }
 
-suspend fun String.getAsBytes(block: HttpRequestBuilder.() -> Unit = {}) = clieht.get(this, block)
+suspend fun String.getAsBytes(block: HttpRequestBuilder.() -> Unit = {}) = client.get(this, block)
 
 fun String.downloadAsImage(
     method: Connection.Method = Connection.Method.GET,
