@@ -20,8 +20,6 @@
         <!-- 主要日志 -->
         <RollingFile name="rollingFile" fileName="${logDir}/latest.log"
                      filePattern="${logDir}/%d{yyyy.MM.dd}-%i.log.gz">
-            <!-- 文件输出所有消息 -->
-            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="ACCEPT"/>
             <PatternLayout pattern="${filePattern}"/>
             <Policies>
                 <OnStartupTriggeringPolicy/>
